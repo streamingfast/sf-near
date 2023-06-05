@@ -9,6 +9,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/streamingfast/firehose-core/node-manager/operator"
+
+	firecore "github.com/streamingfast/firehose-core"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/streamingfast/dstore"
@@ -17,15 +21,25 @@ import (
 	"go.uber.org/zap"
 )
 
-func newReaderNodeBootstrapper(ctx context.Context, logger *zap.Logger, cmd *cobra.Command, resolvedNodeArguments []string, resolver firecore.ReaderNodeArgumentResolver) (operator.Bootstrapper, error) {
-	nodeDataDir := resolver("{node-data-dir}")
-
+func newReaderNodeBootstrapper(
+	ctx context.Context,
+	logger *zap.Logger,
+	cmd *cobra.Command,
+	resolvedNodeArguments []string,
+	resolver firecore.ReaderNodeArgumentResolver,
+) (operator.Bootstrapper, error) {
 	hostname, _ := os.Hostname()
+
+	fmt.Println("Hostname", hostname)
+	fmt.Println("Config file", viper.GetString("reader-node-config-file"))
 
 	configFile := replaceNodeRole(viper.GetString("reader-node-config-file"), hostname)
 	genesisFile := replaceNodeRole(viper.GetString("reader-node-genesis-file"), hostname)
 	nodeKeyFile := replaceHostname(viper.GetString("reader-node-key-file"), hostname)
+	nodeDataDir := replaceHostname(viper.GetString("reader-node-data-dir"), hostname)
 	overwriteNodeFiles := viper.GetBool("reader-node-overwrite-node-files")
+
+	fmt.Println("Config final", configFile)
 
 	return &bootstrapper{
 		configFile:  configFile,

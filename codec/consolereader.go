@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	pbbstream "github.com/streamingfast/bstream/pb/sf/bstream/v1"
+
 	"github.com/streamingfast/bstream"
 	firecore "github.com/streamingfast/firehose-core"
 	pbnear "github.com/streamingfast/firehose-near/pb/sf/near/type/v1"
@@ -78,7 +80,7 @@ type parseCtx struct {
 	blockMetas *blockMetaHeap
 }
 
-func (r *ConsoleReader) ReadBlock() (out *bstream.Block, err error) {
+func (r *ConsoleReader) ReadBlock() (out *pbbstream.Block, err error) {
 	block, err := r.next(readBlock)
 	if err != nil {
 		return nil, err
@@ -152,9 +154,9 @@ func (r *ConsoleReader) buildScanner(reader io.Reader) *bufio.Scanner {
 }
 
 // Formats
-// FIRE BLOCK <NUM> <HASH> <PROTO_HEX>
+// FIRE BLOCK {height} {hash} {parent_height} {parent_hash} {lib} {timestamp} {hex}
 func (ctx *parseCtx) readBlock(line string) (*pbnear.Block, error) {
-	chunks, err := SplitInChunks(line, 4)
+	chunks, err := SplitInChunks(line, 8)
 	if err != nil {
 		return nil, fmt.Errorf("split: %s", err)
 	}
@@ -165,7 +167,7 @@ func (ctx *parseCtx) readBlock(line string) (*pbnear.Block, error) {
 	}
 
 	// We skip block hash for now
-	protoBytes, err := hex.DecodeString(chunks[2])
+	protoBytes, err := hex.DecodeString(chunks[6])
 	if err != nil {
 		return nil, fmt.Errorf("invalid block bytes: %w", err)
 	}

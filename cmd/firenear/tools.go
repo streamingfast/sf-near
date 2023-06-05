@@ -5,17 +5,35 @@ import (
 	"io"
 	"strings"
 
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/spf13/cobra"
-	"github.com/streamingfast/bstream"
-	"github.com/streamingfast/cli/sflags"
+
+	pbbstream "github.com/streamingfast/bstream/pb/sf/bstream/v1"
+	firecore "github.com/streamingfast/firehose-core"
 	pbtransform "github.com/streamingfast/firehose-near/pb/sf/near/transform/v1"
 	pbnear "github.com/streamingfast/firehose-near/pb/sf/near/type/v1"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
-func printBlock(blk *bstream.Block, alsoPrintTransactions bool, out io.Writer) error {
-	block := blk.ToProtocol().(*pbnear.Block)
+func encodeBlock(blk firecore.Block) (*pbbstream.Block, error) {
+	block := blk.(*pbnear.Block)
+
+	enc := &pbbstream.Block{
+		Number:    block.Num(),
+		Id:        block.ID(),
+		LibNum:    block.LIBNum(),
+		ParentNum: block.GetFirehoseBlockParentNumber(),
+		ParentId:  block.PreviousID(),
+		Timestamp: timestamppb.New(block.GetFirehoseBlockTime()),
+	}
+
+	return enc, nil
+}
+
+func printBlock(blk firecore.Block, alsoPrintTransactions bool, out io.Writer) error {
+	block := blk.(*pbnear.Block)
 
 	transactionCount := 0
 	for _, shard := range block.Shards {
@@ -58,8 +76,27 @@ func printBlock(blk *bstream.Block, alsoPrintTransactions bool, out io.Writer) e
 	return nil
 }
 
-func parseReceiptAccountFilters(cmd *cobra.Command, logger *zap.Logger) ([]*anypb.Any, error) {
-	in := sflags.MustGetString(cmd, "receipt-account-filters")
+func receiptAccountFiltersParser(cmd *cobra.Command, logger *zap.Logger) ([]*anypb.Any, error) {
+	filterStrs, err := cmd.Flags().GetStringSlice("receipt-account-filters")
+	if err != nil {
+		return nil, fmt.Errorf("unable to get receipt-account-filters flag: %w", err)
+	}
+
+	var filters []*anypb.Any
+	for _, filterStr := range filterStrs {
+		filter, err := parseReceiptAccountFilters(filterStr)
+		if err != nil {
+			return nil, fmt.Errorf("unable to parse receipt account filters: %w", err)
+		}
+		if filter != nil {
+			filters = append(filters, filter)
+		}
+	}
+
+	return filters, nil
+}
+
+func parseReceiptAccountFilters(in string) (*anypb.Any, error) {
 	if in == "" {
 		return nil, nil
 	}
@@ -83,9 +120,5 @@ func parseReceiptAccountFilters(cmd *cobra.Command, logger *zap.Logger) ([]*anyp
 		PrefixAndSuffixPairs: pairs,
 	}
 
-	any, err := anypb.New(filters)
-	if err != nil {
-		return nil, err
-	}
-	return []*anypb.Any{any}, nil
+	return anypb.New(filters)
 }

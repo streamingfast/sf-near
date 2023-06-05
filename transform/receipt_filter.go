@@ -7,6 +7,7 @@ import (
 	"github.com/streamingfast/bstream"
 	"github.com/streamingfast/bstream/transform"
 	"github.com/streamingfast/dstore"
+	firecore "github.com/streamingfast/firehose-core"
 	pbtransform "github.com/streamingfast/firehose-near/pb/sf/near/transform/v1"
 	pbnear "github.com/streamingfast/firehose-near/pb/sf/near/type/v1"
 	"google.golang.org/protobuf/proto"
@@ -81,8 +82,8 @@ func matchesPrefixSuffix(receiverID string, prefixSuffixPairs []*pbtransform.Pre
 	return false
 }
 
-func (p *BasicReceiptFilter) Transform(readOnlyBlk *bstream.Block, in transform.Input) (transform.Output, error) {
-	nearBlock := readOnlyBlk.ToProtocol().(*pbnear.Block)
+func (p *BasicReceiptFilter) Transform(readOnlyBlk firecore.Block, in transform.Input) (transform.Output, error) {
+	nearBlock := readOnlyBlk.(*pbnear.Block)
 	var outShards []*pbnear.IndexerShard
 	for _, shard := range nearBlock.Shards {
 		var outcomes []*pbnear.IndexerExecutionOutcomeWithReceipt

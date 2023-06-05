@@ -3,7 +3,8 @@ package transform
 import (
 	"fmt"
 
-	"github.com/streamingfast/bstream"
+	pbbstream "github.com/streamingfast/bstream/pb/sf/bstream/v1"
+
 	"github.com/streamingfast/bstream/transform"
 	"github.com/streamingfast/dstore"
 	pbtransform "github.com/streamingfast/firehose-near/pb/sf/near/transform/v1"
@@ -40,12 +41,16 @@ func (p *HeaderOnlyFilter) String() string {
 	return "header only filter"
 }
 
-func (p *HeaderOnlyFilter) Transform(readOnlyBlk *bstream.Block, in transform.Input) (transform.Output, error) {
-	fmt.Println("Here", readOnlyBlk == nil)
-	fullBlock := readOnlyBlk.ToProtocol().(*pbnear.Block)
+func (p *HeaderOnlyFilter) Transform(readOnlyBlk *pbbstream.Block, in transform.Input) (transform.Output, error) {
+	fullBlock := &pbnear.Block{}
+	err := readOnlyBlk.Payload.UnmarshalTo(fullBlock)
+	if err != nil {
+		return nil, fmt.Errorf("mashalling block: %w", err)
+	}
+
 	zlog.Debug("running header only transformer",
-		zap.String("hash", readOnlyBlk.Id),
-		zap.Uint64("num", readOnlyBlk.Number),
+		zap.String("hash", readOnlyBlk.GetFirehoseBlockID()),
+		zap.Uint64("num", readOnlyBlk.GetFirehoseBlockNumber()),
 	)
 
 	// FIXME: The block is actually duplicated elsewhere which means that at this point,

@@ -3,11 +3,15 @@ package transform
 import (
 	"testing"
 
+	"google.golang.org/protobuf/proto"
+
+	pbbstream "github.com/streamingfast/bstream/pb/sf/bstream/v1"
 	"github.com/streamingfast/bstream/transform"
 	pbtransform "github.com/streamingfast/firehose-near/pb/sf/near/transform/v1"
 	pbnear "github.com/streamingfast/firehose-near/pb/sf/near/type/v1"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func headerOnlyTransform(t *testing.T) *anypb.Any {
@@ -42,7 +46,7 @@ func TestHeaderOnly_Transform(t *testing.T) {
 				ShardId: 1,
 			},
 		},
-		Author: "somehone",
+		Author: "someone",
 		ChunkHeaders: []*pbnear.ChunkHeader{
 			{ChunkHash: []byte{0x01}},
 		},
@@ -54,8 +58,18 @@ func TestHeaderOnly_Transform(t *testing.T) {
 			},
 		},
 	}
-	blk, err := block.ToBstreamBlock()
+	payload, err := proto.Marshal(block)
 	require.NoError(t, err)
+
+	blk := &pbbstream.Block{
+		Number:    block.Num(),
+		Id:        block.ID(),
+		LibNum:    block.LIBNum(),
+		ParentNum: block.GetFirehoseBlockParentNumber(),
+		ParentId:  block.PreviousID(),
+		Timestamp: timestamppb.New(block.GetFirehoseBlockTime()),
+		Payload:   &anypb.Any{TypeUrl: "sf.near.type.v1.Block", Value: payload},
+	}
 
 	output, err := preprocFunc(blk)
 	require.NoError(t, err)

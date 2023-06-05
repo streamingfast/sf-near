@@ -4,30 +4,24 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	firecore "github.com/streamingfast/firehose-core"
+	fhCmd "github.com/streamingfast/firehose-core/cmd"
+	"github.com/streamingfast/firehose-core/firehose/info"
+	"github.com/streamingfast/firehose-core/node-manager/mindreader"
 	"github.com/streamingfast/firehose-near/codec"
 	pbnear "github.com/streamingfast/firehose-near/pb/sf/near/type/v1"
 	"github.com/streamingfast/firehose-near/transform"
 	"github.com/streamingfast/logging"
-	"github.com/streamingfast/node-manager/mindreader"
-	pbbstream "github.com/streamingfast/pbgo/sf/bstream/v1"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-func init() {
-	firecore.UnsafePayloadKind = pbbstream.Protocol_NEAR
-}
-
 func main() {
-	firecore.Main(&firecore.Chain[*pbnear.Block]{
+	chain := &firecore.Chain[*pbnear.Block]{
 		ShortName:            "near",
 		LongName:             "NEAR",
 		ExecutableName:       "near-firehose-indexer",
 		FullyQualifiedModule: "github.com/streamingfast/firehose-near",
 		Version:              version,
-
-		Protocol:        "NEA",
-		ProtocolVersion: 1,
 
 		BlockFactory: func() firecore.Block { return new(pbnear.Block) },
 
@@ -55,12 +49,10 @@ func main() {
 		ReaderNodeBootstrapperFactory: newReaderNodeBootstrapper,
 
 		Tools: &firecore.ToolsConfig[*pbnear.Block]{
-			BlockPrinter: printBlock,
+			MergedBlockUpgrader: blockUpgrader,
 
 			RegisterExtraCmd: func(chain *firecore.Chain[*pbnear.Block], toolsCmd *cobra.Command, zlog *zap.Logger, tracer logging.Tracer) error {
 				toolsCmd.AddCommand(newToolsGenerateNodeKeyCmd(chain))
-				toolsCmd.AddCommand(newToolsBackfillCmd(zlog))
-
 				return nil
 			},
 
@@ -68,10 +60,14 @@ func main() {
 				Register: func(flags *pflag.FlagSet) {
 					flags.String("receipt-account-filters", "", "Comma-separated accounts to use as filter/index. If it contains a colon (:), it will be interpreted as <prefix>:<suffix> (each of which can be empty, ex: 'hello:' or ':world')")
 				},
-				Parse: parseReceiptAccountFilters,
+				Parse: receiptAccountFiltersParser,
 			},
 		},
-	})
+
+		InfoResponseFiller: info.DefaultInfoResponseFiller,
+	}
+
+	fhCmd.Main(chain)
 }
 
 // Version value, injected via go build `ldflags` at build time, **must** not be removed or inlined
