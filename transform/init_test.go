@@ -4,16 +4,11 @@ import (
 	"encoding/json"
 	"testing"
 
-	firenear "github.com/streamingfast/firehose-near"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
-
-func init() {
-	firenear.TestingInitBstream()
-}
 
 func assertProtoEqual(t *testing.T, expected proto.Message, actual proto.Message) {
 	t.Helper()

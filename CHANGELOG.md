@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). See [MAINTAINERS.md](./MAINTAINERS.md)
 for instructions to keep up to date.
 
+## Unreleased
+
+* Update to use `firehose-core`
+
 ## [1.1.14](https://github.com/streamingfast/firehose-near/releases/tag/v1.1.14)
 
 * Fixed `reader block stats` to print properly time of importing block.
@@ -203,6 +207,59 @@ The app `substreams-tier1` and `substreams-tier2` should be upgraded concurrentl
 
 #### Backend Changes
 
+### Highlights
+
+This release brings various renames to fully align with all Firehose <Chain> out there. The repository is now using `firehose-core` which should make easier to follow up with latest Firehose/Substreams feature(s).
+
+This brings in a few breaking changes to align the flags across all chains.
+
+### Breaking Changes
+
+* Removed support for `archive-node` app, if you were using this, please use a standard NEAR Archive node to do the same job.
+
+* Flag `common-block-index-sizes` has been renamed to `common-index-block-sizes`.
+
+* String variable `{sf-data-dir}` which interpolates at runtime to Firehose data directory is now `{data-dir}`. If any of your parameter value has `{sf-data-dir}` in its value, change it to `{data-dir}`.
+
+  > **Note** This is an important change, forgetting to change it will change expected locations of data leading to errors or wrong data.
+
+* The default value for `config-file` changed from `sf.yaml` to `firehose.yaml`. If you didn't had this flag defined and wish to keep the old default, define `config-file: sf.yaml`.
+
+* The default value for `data-dir` changed from `sf-data` to `firehose-data`. If you didn't had this flag defined before, you should either move `sf-data` to `firehose-data` or define `data-dir: sf-data`.
+
+  > **Note** This is an important change, forgetting to change it will change expected locations of data leading to errors or wrong data.
+
+* The flag `verbose` has been renamed to `log-verbosity`.
+
+* The default value for `common-blocks-cache-dir` changed from `{sf-data-dir}/blocks-cache` to `file://{data-dir}/storage/blocks-cache`. If you didn't had this flag defined and you had `common-blocks-cache-enabled: true`, you should define `common-blocks-cache-dir: {data-dir}/blocks-cache`.
+
+* The default value for `common-live-blocks-addr` changed from `:15011` to `:10014`. If you didn't had this flag defined and wish to keep the old default, define `common-live-blocks-addr: 15011` and ensure you also modify `relayer-grpc-listen-addr: :15011` (see next entry for details).
+
+* The default value for `relayer-grpc-listen-addr` changed from `:15011` to `:10014`. If you didn't had this flag defined and wish to keep the old default, define `relayer-grpc-listen-addr: 15011` and ensure you also modify `common-live-blocks-addr: :15011` (see previous entry for details).
+
+* The default value for `relayer-source` changed from `:15010` to `:10010`. If you didn't had this flag defined and wish to keep the old default, define `relayer-source: 15010` and ensure you also modify `reader-node-grpc-listen-addr: :15010` (see next entry for details).
+
+* The default value for `reader-node-grpc-listen-addr` changed from `:15010` to `:10010`. If you didn't had this flag defined and wish to keep the old default, define `reader-node-grpc-listen-addr: :15010` and ensure you also modify `relayer-source: :15010` (see previous entry for details).
+
+* The default value for `reader-node-manager-api-addr` changed from `:15009` to `:10011`. If you didn't had this flag defined and wish to keep the old default, define `reader-node-manager-api-addr: :15010`.
+
+* The `reader-node-arguments` is not populated anymore with default `--home={node-data-dir} <extra-args> run` which means you must now specify those manually. The variables `{data-dir}`, `{node-data-dir}` and `{hostname}` are interpolated respectively to Firehose absolute `data-dir` value, to Firehose absolute `reader-node-data-dir` value and to current hostname. To upgrade, if you had no `reader-node-arguments` defined, you must now define `reader-node-arguments: --home="{node-data-dir}" run`, if you had a `+` in your `reader-node-arguments: +--some-flag`, you must now define it like `reader-node-arguments: --home="{node-data-dir}" --some-flag run`.
+
+  > **Note** This is an important change, forgetting to change it will change expected locations of data leading to errors or wrong data.
+
+* The `reader-node-boot-nodes` flag has been removed entirely, if you have boot nodes to specify, specify them in `reader-node-arguments` using `--boot-nodes=...` instead.
+
+* Removed unused flags `reader-node-merge-and-store-directly`, `reader-node-merge-threshold-block-age` and `reader-node-wait-upload-complete-on-shutdown`.
+
+* The flag `receipt-index-builder-index-size` has been renamed to `index-builder-index-size`.
+
+* The flag `receipt-index-builder-start-block` has been renamed to `index-builder-start-block`.
+
+* The flag `receipt-index-builder-stop-block` has been renamed to `index-builder-stop-block`.
+
+* The default value for `firehose-grpc-listen-addr` changed from `:15042` to `:10015`. If you didn't had this flag defined and wish to keep the old default, define `firehose-grpc-listen-addr: :15010`.
+
+* The default value for `merger-grpc-listen-addr` changed from `:15012` to `:10012`. If you didn't had this flag defined and wish to keep the old default, define `merger-grpc-listen-addr: :15012`.
 * Update firehose-core to v0.1.1:
   - added missing `--substreams-tier2-request-stats` request debugging flag
   - added missing firehose rate limiting options flags, `--firehose-rate-limit-bucket-size` and `--firehose-rate-limit-bucket-fill-rate` to manage concurrent connection attempts to Firehose.
