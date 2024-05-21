@@ -324,6 +324,7 @@ message ActionError {
     DelegateActionAccessKeyErrorKind delegate_action_access_key_error = 40;
     DelegateActionInvalidNonceKind delegate_action_invalid_nonce = 41;
     DelegateActionNonceTooLargeKind delegate_action_nonce_too_large = 42;
+    NonRefundableTransferToExistingAccountKind non_refundable_transfer_to_existing_account = 43;
   }
 }
 
@@ -446,6 +447,10 @@ message DelegateActionInvalidNonceKind{
 message DelegateActionNonceTooLargeKind{
   uint64 delegate_nonce = 1;
   uint64 upper_bound = 2;
+}
+
+message NonRefundableTransferToExistingAccountKind {
+  string account_id = 1;
 }
 
 enum InvalidTxError { //todo: add more detail?
