@@ -416,6 +416,7 @@ enum ReceiptValidationError { //todo: add more detail?
   ReturnedValueLengthExceeded = 4;
   NumberInputDataDependenciesExceeded = 5;
   ActionsValidationError = 6;
+  ReceiptSizeExceeded = 7;
 }
 
 message OnlyImplicitAccountCreationAllowedErrorKind{
@@ -468,6 +469,10 @@ enum InvalidTxError { //todo: add more detail?
   Expired = 11;
   ActionsValidation = 12;
   TransactionSizeExceeded = 13;
+  InvalidTransactionVersion = 14;
+  StorageError = 15;
+  ShardCongested = 16;
+  ShardStuck = 17;
 }
 
 message MerklePath {
