@@ -21,10 +21,5 @@ func blockUpgrader(block *pbbstream.Block) (*pbbstream.Block, error) {
 	block.Timestamp = timestamppb.New(nb.GetFirehoseBlockTime())
 	block.LibNum = nb.GetFirehoseBlockLIBNum()
 
-	err = block.Payload.MarshalFrom(nb)
-	if err != nil {
-		return nil, fmt.Errorf("marshaling block %d: %w", block.Number, err)
-	}
-
 	return block, nil
 }
