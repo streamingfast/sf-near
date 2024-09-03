@@ -34,6 +34,7 @@ func TestParseFromFile(t *testing.T) {
 		expectedPanicErr error
 	}{
 		{"testdata/full.firelog", nil},
+		{"testdata/old.firelog", nil},
 	}
 
 	for _, test := range tests {
