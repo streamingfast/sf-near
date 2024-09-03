@@ -9,15 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/streamingfast/firehose-core/node-manager/operator"
-
-	firecore "github.com/streamingfast/firehose-core"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/streamingfast/dstore"
 	firecore "github.com/streamingfast/firehose-core"
-	"github.com/streamingfast/node-manager/operator"
+	"github.com/streamingfast/firehose-core/node-manager/operator"
 	"go.uber.org/zap"
 )
 
@@ -30,8 +26,10 @@ func newReaderNodeBootstrapper(
 ) (operator.Bootstrapper, error) {
 	hostname, _ := os.Hostname()
 
-	fmt.Println("Hostname", hostname)
-	fmt.Println("Config file", viper.GetString("reader-node-config-file"))
+	logger.Info("bootstrapping reader node",
+		zap.String("hostname", hostname),
+		zap.String("config_file", viper.GetString("reader-node-config-file")),
+	)
 
 	configFile := replaceNodeRole(viper.GetString("reader-node-config-file"), hostname)
 	genesisFile := replaceNodeRole(viper.GetString("reader-node-genesis-file"), hostname)
@@ -39,7 +37,12 @@ func newReaderNodeBootstrapper(
 	nodeDataDir := replaceHostname(viper.GetString("reader-node-data-dir"), hostname)
 	overwriteNodeFiles := viper.GetBool("reader-node-overwrite-node-files")
 
-	fmt.Println("Config final", configFile)
+	logger.Info("final node configuration",
+		zap.String("config_file", configFile),
+		zap.String("genesis_file", genesisFile),
+		zap.String("node_key_file", nodeKeyFile),
+		zap.String("node_data_dir", nodeDataDir),
+	)
 
 	return &bootstrapper{
 		configFile:  configFile,

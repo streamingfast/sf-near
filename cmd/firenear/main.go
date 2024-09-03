@@ -22,6 +22,7 @@ func main() {
 		ExecutableName:       "near-firehose-indexer",
 		FullyQualifiedModule: "github.com/streamingfast/firehose-near",
 		Version:              version,
+		DefaultBlockType:     "sf.near.type.v1.Block",
 
 		BlockFactory: func() firecore.Block { return new(pbnear.Block) },
 
@@ -35,8 +36,8 @@ func main() {
 		},
 
 		ConsoleReaderFactory: func(lines chan string, blockEncoder firecore.BlockEncoder, logger *zap.Logger, tracer logging.Tracer) (mindreader.ConsolerReader, error) {
-			// FIXME: This was hardcoded also in the previouse firehose-near version, Firehose will break if this is not available
-			return codec.NewConsoleReader(lines, blockEncoder, "http://localhost:3030")
+			// FIXME: This was hardcoded also in the previous firehose-near version, Firehose will break if this is not available
+			return codec.NewConsoleReader(lines, firecore.NewBlockEncoder(), "http://localhost:3030")
 		},
 
 		RegisterExtraStartFlags: func(flags *pflag.FlagSet) {

@@ -4,11 +4,14 @@ import (
 	"bufio"
 	"container/heap"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/mr-tron/base58"
 
 	pbbstream "github.com/streamingfast/bstream/pb/sf/bstream/v1"
 
@@ -158,6 +161,113 @@ func (r *ConsoleReader) buildScanner(reader io.Reader) *bufio.Scanner {
 func (ctx *parseCtx) readBlock(line string) (*pbnear.Block, error) {
 	chunks, err := SplitInChunks(line, 8)
 	if err != nil {
+		var invalidSplitErr *InvalidSplitError
+		if errors.As(err, &invalidSplitErr) {
+			if invalidSplitErr.actual == 4 {
+				return ctx.readBlockOldVersion(line) //backward compatibility
+			} else {
+				return nil, fmt.Errorf("split: %s", err)
+			}
+		} else {
+			return nil, fmt.Errorf("split: %s", err)
+		}
+	}
+
+	blockNum, err := strconv.ParseUint(chunks[0], 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid block num: %w", err)
+	}
+
+	_, err = hex.DecodeString(chunks[1])
+	if err != nil {
+		return nil, fmt.Errorf("invalid block hash: %w", err)
+	}
+
+	parentHeight, err := strconv.ParseUint(chunks[2], 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid parent height: %w", err)
+	}
+
+	parentHash, err := hex.DecodeString(chunks[3])
+	if err != nil {
+		return nil, fmt.Errorf("invalid parent hash: %w", err)
+	}
+
+	libHash, err := hex.DecodeString(chunks[4])
+	if err != nil {
+		return nil, fmt.Errorf("invalid lib hash: %w", err)
+	}
+
+	// We skip block hash for now
+	protoBytes, err := hex.DecodeString(chunks[6])
+	if err != nil {
+		return nil, fmt.Errorf("invalid block bytes: %w", err)
+	}
+
+	block := &pbnear.Block{}
+	if err := proto.Unmarshal(protoBytes, block); err != nil {
+		return nil, fmt.Errorf("invalid block: %w", err)
+	}
+
+	if block.Header.PrevHeight != parentHeight {
+		return nil, fmt.Errorf("invalid block: prev height mismatch, got %d, expected %d", block.Header.PrevHeight, parentHeight)
+	}
+	if block.Header.PrevHash.AsString() != base58.Encode(parentHash) {
+		return nil, fmt.Errorf("invalid block: prev hash mismatch, got %s, expected %s", block.Header.PrevHash.AsBase58String(), base58.Encode(parentHash))
+	}
+	if block.Header.LastFinalBlock.AsString() != hex.EncodeToString(libHash) {
+		return nil, fmt.Errorf("invalid block: lib hash mismatch, got %s, expected %s", block.Header.LastFinalBlock.AsBase58String(), hex.EncodeToString(libHash))
+	}
+
+	newParsingStats(blockNum).log()
+
+	//Push new block meta
+	ctx.blockMetas.Push(&blockMeta{
+		id:        block.Header.Hash.AsBase58String(),
+		number:    block.Num(),
+		blockTime: block.Time(),
+	})
+
+	//Setting previous height
+	prevHeightId := block.Header.PrevHash.AsBase58String()
+	if prevHeightId == "11111111111111111111111111111111" { // block id 0 (does not exist)
+		block.Header.PrevHeight = bstream.GetProtocolFirstStreamableBlock
+	} else {
+		if block.Header.PrevHeight == 0 {
+			prevHeightMeta, err := ctx.blockMetas.get(prevHeightId)
+			if err != nil {
+				return nil, fmt.Errorf("getting prev height meta: %w", err)
+			}
+			block.Header.PrevHeight = prevHeightMeta.number
+		}
+	}
+
+	//Setting LIB num
+	lastFinalBlockId := block.Header.LastFinalBlock.AsBase58String()
+	if lastFinalBlockId == "11111111111111111111111111111111" { // block id 0 (does not exist)
+		block.Header.LastFinalBlockHeight = bstream.GetProtocolFirstStreamableBlock
+	} else {
+		libBlockMeta, err := ctx.blockMetas.get(lastFinalBlockId)
+		if err != nil {
+			return nil, fmt.Errorf("getting lib block meta: %w", err)
+		}
+		block.Header.LastFinalBlockHeight = libBlockMeta.number
+	}
+
+	//Purging
+	for {
+		if ctx.blockMetas.Len() <= 2000 {
+			break
+		}
+		heap.Pop(ctx.blockMetas)
+	}
+
+	return block, nil
+}
+
+func (ctx *parseCtx) readBlockOldVersion(line string) (*pbnear.Block, error) {
+	chunks, err := SplitInChunks(line, 4)
+	if err != nil {
 		return nil, fmt.Errorf("split: %s", err)
 	}
 
@@ -167,7 +277,7 @@ func (ctx *parseCtx) readBlock(line string) (*pbnear.Block, error) {
 	}
 
 	// We skip block hash for now
-	protoBytes, err := hex.DecodeString(chunks[6])
+	protoBytes, err := hex.DecodeString(chunks[2])
 	if err != nil {
 		return nil, fmt.Errorf("invalid block bytes: %w", err)
 	}
@@ -227,8 +337,17 @@ func (ctx *parseCtx) readBlock(line string) (*pbnear.Block, error) {
 func SplitInChunks(line string, count int) ([]string, error) {
 	chunks := strings.SplitN(line, " ", -1)
 	if len(chunks) != count {
-		return nil, fmt.Errorf("%d fields required but found %d fields for line %q", count, len(chunks), line)
+		return nil, &InvalidSplitError{expected: count, actual: len(chunks)}
 	}
 
 	return chunks[1:count], nil
+}
+
+type InvalidSplitError struct {
+	expected int
+	actual   int
+}
+
+func (i *InvalidSplitError) Error() string {
+	return fmt.Sprintf("invalid split, expected %d chunks, got %d", i.expected, i.actual)
 }
