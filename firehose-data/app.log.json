@@ -1,0 +1,46 @@
+{"level":"info","ts":1725391148.195008,"logger":"dtracing","msg":"registering development exporters from environment variables"}
+{"level":"info","ts":1725391148.19554,"logger":"firenear","msg":"starting Firehose on NEAR with config file ''"}
+{"level":"info","ts":1725391148.197164,"logger":"firenear","msg":"launching applications: firehose"}
+{"level":"info","ts":1725391148.1971881,"logger":"firehose","msg":"setting up trust authenticator"}
+{"level":"info","ts":1725391148.198636,"logger":"firehose","msg":"running firehose","config":{"MergedBlocksStoreURL":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v4?project=dfuseio-global","OneBlocksStoreURL":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v4-oneblock?project=dfuseio-global","ForkedBlocksStoreURL":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v4-forked?project=dfuseio-global","BlockStreamAddr":"localhost:9002","GRPCListenAddr":":9000*","GRPCShutdownGracePeriod":1000000000,"ServiceDiscoveryURL":null}}
+{"level":"info","ts":1725391148.199201,"logger":"firehose","msg":"standard server created"}
+{"level":"info","ts":1725391148.1992478,"logger":"firehose","msg":"registering grpc services"}
+{"level":"info","ts":1725391148.199268,"logger":"firehose","msg":"waiting until hub is real-time synced"}
+{"level":"info","ts":1725391200.312219,"logger":"bstream","msg":"Hub is ready"}
+{"level":"info","ts":1725391200.430633,"logger":"bstream","msg":"starting block source consumption","endpoint_url":"localhost:9002"}
+{"level":"info","ts":1725391200.4314592,"logger":"bstream","msg":"block stream source reading messages","endpoint_url":"localhost:9002"}
+{"level":"info","ts":1725391200.718646,"logger":"bstream","msg":"processing block","block_number":127220811,"block_Id":"aa541fb90a4ce10e29a11a853c6e85a64fdd007066aa1e9456b337edce81cbf1","block_lib":127220809}
+{"level":"info","ts":1725391200.815425,"logger":"firehose","msg":"gracefully stopping the gRPC server","timeout":1}
+{"level":"error","ts":1725391200.8154361,"logger":"firenear","msg":"\n################################################################\nFatal error in app firehose:\n\ncannot initialize info server: chain name is not set\n################################################################\n"}
+{"level":"info","ts":1725391200.815495,"logger":"firehose","msg":"gRPC server teminated gracefully"}
+{"level":"info","ts":1725391200.815552,"logger":"firenear","msg":"application firehose shutdown unexpectedly, quitting"}
+{"level":"info","ts":1725391200.81565,"logger":"firehose","msg":"launching gRPC firehoseServer","live_support":true}
+{"level":"info","ts":1725391200.815678,"logger":"firenear","msg":"waiting for all apps termination..."}
+{"level":"info","ts":1725391200.815701,"logger":"firehose","msg":"launching gRPC server","listen_addr":":9000"}
+{"level":"info","ts":1725391200.8157141,"logger":"firenear","msg":"all apps terminated gracefully"}
+{"level":"error","ts":1725391200.815774,"logger":"firenear","msg":"failed to run","error":"unable to launch: cannot initialize info server: chain name is not set"}
+{"level":"info","ts":1725391200.815985,"logger":"firehose","msg":"serving gRPC (over HTTP router) (encrypted)","listen_addr":":9000"}
+{"level":"info","ts":1725391344.7014852,"logger":"dtracing","msg":"registering development exporters from environment variables"}
+{"level":"info","ts":1725391344.702645,"logger":"firenear","msg":"starting Firehose on NEAR with config file ''"}
+{"level":"info","ts":1725391344.70563,"logger":"firenear","msg":"launching applications: firehose"}
+{"level":"info","ts":1725391344.705665,"logger":"firehose","msg":"setting up trust authenticator"}
+{"level":"info","ts":1725391344.706214,"logger":"firehose","msg":"running firehose","config":{"MergedBlocksStoreURL":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v5?project=dfuseio-global","OneBlocksStoreURL":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v5-oneblock?project=dfuseio-global","ForkedBlocksStoreURL":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v5-forked?project=dfuseio-global","BlockStreamAddr":":10014","GRPCListenAddr":":9000*","GRPCShutdownGracePeriod":1000000000,"ServiceDiscoveryURL":null}}
+{"level":"info","ts":1725391344.7075999,"logger":"firehose","msg":"standard server created"}
+{"level":"info","ts":1725391344.707728,"logger":"firehose","msg":"registering grpc services"}
+{"level":"info","ts":1725391344.707785,"logger":"firehose","msg":"waiting until hub is real-time synced"}
+{"level":"info","ts":1725391440.739965,"logger":"bstream","msg":"Hub is ready"}
+{"level":"warn","ts":1725391474.7040992,"logger":"firehose","msg":"waiting to read the first_streamable_block before starting firehose/substreams endpoints","first_streamable_block":9820214,"merged_blocks_store":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v5?project=dfuseio-global","one_block_store":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v5-oneblock?project=dfuseio-global"}
+{"level":"warn","ts":1725391497.552112,"logger":"firehose","msg":"waiting to read the first_streamable_block before starting firehose/substreams endpoints","first_streamable_block":9820214,"merged_blocks_store":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v5?project=dfuseio-global","one_block_store":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v5-oneblock?project=dfuseio-global"}
+{"level":"warn","ts":1725391509.709328,"logger":"firehose","msg":"waiting to read the first_streamable_block before starting firehose/substreams endpoints","first_streamable_block":9820214,"merged_blocks_store":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v5?project=dfuseio-global","one_block_store":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v5-oneblock?project=dfuseio-global"}
+{"level":"warn","ts":1725391520.983148,"logger":"firehose","msg":"waiting to read the first_streamable_block before starting firehose/substreams endpoints","first_streamable_block":9820214,"merged_blocks_store":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v5?project=dfuseio-global","one_block_store":"gs://dfuseio-global-blocks-uscentral/near-mainnet/v5-oneblock?project=dfuseio-global"}
+{"level":"info","ts":1725391691.507066,"logger":"firehose","msg":"gracefully stopping the gRPC server","timeout":1}
+{"level":"info","ts":1725391691.507475,"logger":"firehose","msg":"gRPC server teminated gracefully"}
+{"level":"info","ts":1725391691.5075042,"logger":"firehose","msg":"launching gRPC firehoseServer","live_support":true}
+{"level":"info","ts":1725391691.507521,"logger":"firehose","msg":"launching gRPC server","listen_addr":":9000"}
+{"level":"error","ts":1725391691.507713,"logger":"firenear","msg":"\n################################################################\nFatal error in app firehose:\n\ncannot initialize info server: chain name is not set\n################################################################\n"}
+{"level":"info","ts":1725391691.509572,"logger":"firenear","msg":"application firehose shutdown unexpectedly, quitting"}
+{"level":"info","ts":1725391691.509599,"logger":"firenear","msg":"waiting for all apps termination..."}
+{"level":"info","ts":1725391691.50964,"logger":"firenear","msg":"all apps terminated gracefully"}
+{"level":"info","ts":1725391691.509637,"logger":"firenear","msg":"received termination signal, waiting for unready period delay 30s before notifying listner (Ctrl+C again 3 times to force kill!)","signal":"interrupt"}
+{"level":"error","ts":1725391691.509706,"logger":"firenear","msg":"failed to run","error":"unable to launch: cannot initialize info server: chain name is not set"}
+{"level":"info","ts":1725391691.509738,"logger":"firehose","msg":"serving gRPC (over HTTP router) (encrypted)","listen_addr":":9000"}
