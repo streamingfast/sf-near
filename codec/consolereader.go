@@ -215,8 +215,8 @@ func (ctx *parseCtx) readBlock(line string) (*pbnear.Block, error) {
 	if block.Header.PrevHash.AsBase58String() != base58.Encode(parentHash) {
 		return nil, fmt.Errorf("invalid block: prev hash mismatch, got %s, expected %s", block.Header.PrevHash.AsBase58String(), base58.Encode(parentHash))
 	}
-	if block.Header.LastFinalBlock.AsBase58String() != hex.EncodeToString(libHash) {
-		return nil, fmt.Errorf("invalid block: lib hash mismatch, got %s, expected %s", block.Header.LastFinalBlock.AsBase58String(), hex.EncodeToString(libHash))
+	if block.Header.LastFinalBlock.AsBase58String() != base58.Encode(libHash) {
+		return nil, fmt.Errorf("invalid block: lib hash mismatch, got %s, expected %s", block.Header.LastFinalBlock.AsBase58String(), base58.Encode(libHash))
 	}
 
 	newParsingStats(blockNum).log()
