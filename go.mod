@@ -11,7 +11,7 @@ require (
 	github.com/streamingfast/bstream v0.0.2-0.20240829135239-723d9306f55d
 	github.com/streamingfast/cli v0.0.4-0.20240412191021-5f81842cb71d
 	github.com/streamingfast/dstore v0.1.1-0.20240826190906-91345d4a31f2
-	github.com/streamingfast/firehose-core v1.6.2-0.20240903192802-cc785218e241
+	github.com/streamingfast/firehose-core v1.6.2-0.20240904194045-e2a0a26ed532
 	github.com/streamingfast/logging v0.0.0-20230608130331-f22c91403091
 	github.com/streamingfast/near-go v0.0.0-20220302163233-b638f5b48a2d
 	github.com/stretchr/testify v1.8.4
@@ -147,7 +147,7 @@ require (
 	github.com/streamingfast/sf-tracing v0.0.0-20240430173521-888827872b90 // indirect
 	github.com/streamingfast/shutter v1.5.0 // indirect
 	github.com/streamingfast/snapshotter v0.0.0-20230316190750-5bcadfde44d0 // indirect
-	github.com/streamingfast/substreams v1.10.0 // indirect
+	github.com/streamingfast/substreams v1.10.1-0.20240904180036-74e0072872de // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf // indirect
 	github.com/tetratelabs/wazero v1.8.0 // indirect
